@@ -16,6 +16,7 @@ FONT_COLOR = config['SETTINGS']['FONT_COLOR']
 BACKGROUND_COLOR = config['SETTINGS']['BACKGROUND_COLOR']
 
 EXIT_KEY = config['SETTINGS']['EXIT_KEY']
+SHOW_TIME = config['SETTINGS']['SHOW_TIME']
 
 #Connect to server and bind port on local
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -40,7 +41,8 @@ def quit(x):
 #Refresh clock and timecode
 def set_text():
     app.setLabel("ltc", get_LTC())
-    app.setLabel("time", strftime('%H:%M'))
+    if SHOW_TIME == 'True':
+        app.setLabel("time", strftime('%H:%M'))
     app.after(20, set_text)
 
 
@@ -53,7 +55,8 @@ app.setGeometry("fullscreen")
 
 #Create all labels
 app.addLabel("filler", " ")
-app.addLabel("time", "--:--")
+if SHOW_TIME == 'True':
+    app.addLabel("time", "--:--")
 app.addLabel("ltc", "--:--:--:--")
 app.addLabel("filler2", " ")
 
