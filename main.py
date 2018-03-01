@@ -66,10 +66,10 @@ app.addLabel("filler", " ")
 if SHOW_TIME == 'True':
     app.addLabel("currenttime", "Current time:").config(font="Helvetica 20", anchor="s")
     app.addLabel("time", "--:--")
-    app.addLabel("filler2", " ")
+    app.addLabel("filler3", " ")
 app.addLabel("currentltc", "LTC:").config(font="Helvetica 20", anchor="s")
 app.addLabel("ltc", "--:--:--:--")
-app.addLabel("filler3", " ")
+app.addLabel("filler2", " ")
 
 app.setFont(FONT_SIZE)
 app.setBg(BACKGROUND_COLOR)
