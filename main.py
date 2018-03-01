@@ -2,6 +2,7 @@ from appJar import gui
 from time import strftime
 import socket
 import configparser
+import select
 
 #Load all variables from config file
 config = configparser.ConfigParser()
@@ -22,13 +23,17 @@ SHOW_TIME = config['SETTINGS']['SHOW_TIME']
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.bind((HOST, UDP_PORT))
 
+
 #Get timecode from UDP
 def get_LTC():
-    data, addr = sock.recvfrom(BUFSIZE)
-    if data is None:
-        return '--:--:--:--'
-    data_Decoded = data.decode("UTF-8")[0:11] #Making sure just to take "xx:xx:xx:xx"
-    return data_Decoded
+    ready = select.select([sock], [], [], 1)
+    if ready[0]:
+        data, addr = sock.recvfrom(BUFSIZE)
+        data_Decoded = data.decode("UTF-8")[0:11]  # Making sure just to take "xx:xx:xx:xx"
+        return data_Decoded
+    else:
+        return 'xx:xx:xx:xx'
+        pass
 
 
 #Exit app function called by keypress
@@ -39,11 +44,14 @@ def quit(x):
 
 
 #Refresh clock and timecode
-def set_text():
+def update_tc():
     app.setLabel("ltc", get_LTC())
-    if SHOW_TIME == 'True':
-        app.setLabel("time", strftime('%H:%M'))
-    app.after(20, set_text)
+    app.after(2, update_tc)
+
+def update_time():
+    app.setLabel("time", strftime('%H:%M'))
+    app.after(100, update_time)
+
 
 
 app = gui()
@@ -56,7 +64,10 @@ app.setGeometry("fullscreen")
 #Create all labels
 app.addLabel("filler", " ")
 if SHOW_TIME == 'True':
+    app.addLabel("currenttime", "Current time:").config(font="Helvetica 20", anchor="s")
     app.addLabel("time", "--:--")
+    app.addLabel("filler3", " ")
+app.addLabel("currentltc", "LTC:").config(font="Helvetica 20", anchor="s")
 app.addLabel("ltc", "--:--:--:--")
 app.addLabel("filler2", " ")
 
@@ -64,7 +75,10 @@ app.setFont(FONT_SIZE)
 app.setBg(BACKGROUND_COLOR)
 app.setFg(FONT_COLOR)
 
+
 #Start background loop
-app.thread(set_text())
+app.thread(update_tc())
+if SHOW_TIME == 'True':
+    app.thread(update_time())
 
 app.go()
